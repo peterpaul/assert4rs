@@ -18,7 +18,7 @@ impl<T> Assert<T> {
     ///
     /// All assertions start with `Assert::that(actual)`.
     pub fn that(actual: T) -> Self {
-        Assert { actual: actual }
+        Assert { actual }
     }
 
     /// Maps the `actual` value using lambda `f`.
