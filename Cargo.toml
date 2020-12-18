@@ -6,6 +6,7 @@ repository = "https://github.com/peterpaul/assert4rs"
 readme = "README.md"
 version = "0.1.1"
 authors = ["Peterpaul Klein Haneveld <pp.kleinhaneveld@gmail.com>"]
+license = "MIT"
 license-file = "LICENSE"
 edition = "2018"
 
