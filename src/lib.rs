@@ -98,22 +98,28 @@ where
 }
 
 /// DSL for [Option] assertions.
-impl<T> Assert<Option<T>>
+pub trait AssertOption<T> {
+    /// Assert that `actual` is equal to [Some] `expected' value.
+    fn is_some(self, expected: T) -> Self;
+    /// Assert that `actual` is equal to [None].
+    fn is_none(self) -> Self;
+    /// Unwrap the [Option] value, panic for [None].
+    fn unwrap(self) -> Assert<T>;
+}
+
+impl<T> AssertOption<T> for Assert<Option<T>>
 where
     T: PartialEq + Debug,
 {
-    /// Assert that `actual` is equal to [Some] `expected' value.
-    pub fn is_some(self, expected: T) -> Self {
+    fn is_some(self, expected: T) -> Self {
         self.is(Some(expected))
     }
 
-    /// Assert that `actual` is equal to [None].
-    pub fn is_none(self) -> Self {
+    fn is_none(self) -> Self {
         self.is(None)
     }
 
-    /// Unwrap the [Option] value, panic for [None].
-    pub fn unwrap(self) -> Assert<T> {
+    fn unwrap(self) -> Assert<T> {
         match self.actual {
             Some(value) => Assert::that(value),
             None => panic!(
@@ -124,19 +130,31 @@ where
     }
 }
 
-/// [Assert] DSL for [Vec].
-impl<T> Assert<Vec<T>>
-where
-    T: PartialEq + Debug,
-{
+/// DSL for [Vec].
+pub trait AssertVec<T> {
     /// Assert that the actual vector contains a specific `expected`
     /// value.
     ///
     /// ```
-    /// # use assert4rs::Assert;
+    /// # use assert4rs::{Assert, AssertVec};
     /// Assert::that(vec![1, 2, 3]).contains(2);
     /// ```
-    pub fn contains(self, expected: T) -> Self {
+    fn contains(self, expected: T) -> Self;
+    /// Returns an [Assert] for a value from the [Vec].
+    ///
+    /// ```
+    /// # use assert4rs::{Assert, AssertOption, AssertVec};
+    /// Assert::that(vec!['a', 'b', 'c']).get(1).is_some('b');
+    /// Assert::that(vec!['a', 'b', 'c']).get(5).is_none();
+    /// ```
+    fn get(&mut self, index: usize) -> Assert<Option<T>>;
+}
+
+impl<T> AssertVec<T> for Assert<Vec<T>>
+where
+    T: PartialEq + Debug,
+{
+    fn contains(self, expected: T) -> Self {
         assert!(
             self.actual.contains(&expected),
             "Assertion failed: `(actual.contains(expected))`
@@ -148,14 +166,7 @@ where
         self
     }
 
-    /// Returns an [Assert] for a value from the [Vec].
-    ///
-    /// ```
-    /// # use assert4rs::Assert;
-    /// Assert::that(vec!['a', 'b', 'c']).get(1).is_some('b');
-    /// Assert::that(vec!['a', 'b', 'c']).get(5).is_none();
-    /// ```
-    pub fn get(&mut self, index: usize) -> Assert<Option<T>> {
+    fn get(&mut self, index: usize) -> Assert<Option<T>> {
         match self.actual.get(index) {
             None => Assert::that(None),
             Some(_) => Assert::that(Some(self.actual.swap_remove(index))),
@@ -194,12 +205,12 @@ mod tests {
     #[should_panic(expected = "Assertion failed: `(actual != other)`
   Actual:   `2`
   Other:    `2`")]
-    fn is_not_panics_for_equal_values() {
+    fn ne_panics_for_equal_values() {
         Assert::that(2).is_not(2);
     }
 
     #[test]
-    fn is_not_succeeds_for_different_values() {
+    fn ne_succeeds_for_different_values() {
         Assert::that(2).is_not(3);
     }
 
