@@ -28,7 +28,7 @@ where
         match self.actual {
             Some(value) => Assert::that(value),
             None => panic!(
-                "Assertion failed: `(actual == Some(expected)`
+                "Assertion failed: `(actual.is_some())`
   Actual:   `None`"
             ),
         }

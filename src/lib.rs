@@ -107,7 +107,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Assertion failed: `(actual == Some(expected)`
+    #[should_panic(expected = "Assertion failed: `(actual.is_some())`
   Actual:   `None`")]
     fn option_unwrap_panics_for_none() {
         let i: Option<i32> = None;
