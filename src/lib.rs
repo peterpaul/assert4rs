@@ -38,7 +38,7 @@ impl<T> Assert<T> {
     ///     .map(|v| v.parse::<i32>().unwrap())
     ///     .is(3);
     /// ```
-    pub fn map<R>(self, f: impl Fn(T) -> R) -> Assert<R> {
+    pub fn map<R>(self, f: impl FnOnce(T) -> R) -> Assert<R> {
         Assert::that(f(self.actual))
     }
 }
