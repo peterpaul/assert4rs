@@ -59,7 +59,7 @@ mod test {
     #[test]
     fn result_is_ok_succeeds_for_ok() {
         let result: Result<i32, i32> = Ok(2);
-        Assert::that(result).unwrap_ok().is(2);
+        Assert::that(result).is_ok();
     }
 
     #[test]
@@ -67,11 +67,39 @@ mod test {
   Actual:   `Err(2)`")]
     fn result_is_ok_panics_for_err() {
         let result: Result<i32, i32> = Err(2);
-        Assert::that(result).unwrap_ok().is(2);
+        Assert::that(result).is_ok();
     }
 
     #[test]
     fn result_is_err_succeeds_for_err() {
+        let result: Result<i32, i32> = Err(2);
+        Assert::that(result).is_err();
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual.is_err())`
+  Actual:   `Ok(2)`")]
+    fn result_is_err_panics_for_ok() {
+        let result: Result<i32, i32> = Ok(2);
+        Assert::that(result).is_err();
+    }
+
+    #[test]
+    fn result_unwrap_ok_succeeds_for_ok() {
+        let result: Result<i32, i32> = Ok(2);
+        Assert::that(result).unwrap_ok().is(2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual.is_ok())`
+  Actual:   `Err(2)`")]
+    fn result_unwrap_ok_panics_for_err() {
+        let result: Result<i32, i32> = Err(2);
+        Assert::that(result).unwrap_ok().is(2);
+    }
+
+    #[test]
+    fn result_unwrap_err_succeeds_for_err() {
         let result: Result<i32, i32> = Err(2);
         Assert::that(result).unwrap_err().is(2);
     }
@@ -79,7 +107,7 @@ mod test {
     #[test]
     #[should_panic(expected = "Assertion failed: `(actual.is_err())`
   Actual:   `Ok(2)`")]
-    fn result_is_err_panics_for_ok() {
+    fn result_unwrap_err_panics_for_ok() {
         let result: Result<i32, i32> = Ok(2);
         Assert::that(result).unwrap_err().is(2);
     }

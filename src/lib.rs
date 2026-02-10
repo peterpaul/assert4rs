@@ -105,43 +105,4 @@ mod tests {
         Assert::that(2).map(|v| v + 2).is(3);
     }
 
-    #[test]
-    fn option_is_some_succeeds_for_equal_values() {
-        Assert::that(Some(2)).is_some(2);
-    }
-
-    #[test]
-    fn option_unwrap_successfully_unwraps_some_value() {
-        Assert::that(Some(2)).unwrap().is(2);
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual.is_some())`
-  Actual:   `None`")]
-    fn option_unwrap_panics_for_none() {
-        let i: Option<i32> = None;
-        Assert::that(i).unwrap();
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual == expected)`
-  Actual:   `None`
-  Expected: `Some(2)`")]
-    fn option_is_some_panics_for_none() {
-        Assert::that(None).is_some(2);
-    }
-
-    #[test]
-    fn option_is_none_succeeds_for_none() {
-        let i: Option<i32> = None;
-        Assert::that(i).is_none();
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual == expected)`
-  Actual:   `Some(2)`
-  Expected: `None`")]
-    fn option_is_none_panics_for_some() {
-        Assert::that(Some(2)).is_none();
-    }
 }
