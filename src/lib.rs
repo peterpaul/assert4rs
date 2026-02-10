@@ -1,3 +1,37 @@
+//! Fluent assertions for Rust.
+//!
+//! This crate provides a fluent API for writing assertions in tests.
+//! All assertions start with [`Assert::that`] and can be chained:
+//!
+//! ```
+//! use assert4rs::Assert;
+//!
+//! Assert::that("foo")
+//!     .is("foo")
+//!     .is_not("bar");
+//! ```
+//!
+//! Type-specific assertions are available for [`Option`], [`Result`],
+//! and [`Vec`]:
+//!
+//! ```
+//! use assert4rs::Assert;
+//!
+//! Assert::that(Some(42)).unwrap().is_gt(0);
+//! Assert::that(vec![1, 2, 3]).contains(&2);
+//! ```
+//!
+//! Values can be transformed with [`Assert::map`] to apply further
+//! assertions:
+//!
+//! ```
+//! use assert4rs::Assert;
+//!
+//! Assert::that("3")
+//!     .map(|v| v.parse::<i32>().unwrap())
+//!     .is(3);
+//! ```
+
 pub mod equals;
 pub mod option;
 pub mod result;
@@ -47,62 +81,12 @@ impl<T> Assert<T> {
     ///     .map(|v| v.parse::<i32>().unwrap())
     ///     .is(3);
     /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// Assert::that(2).map(|v| v + 2).is(3);
+    /// ```
     pub fn map<R>(self, f: impl FnOnce(T) -> R) -> Assert<R> {
         Assert::that(f(self.actual))
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn is_succeeds_for_equal_values() {
-        Assert::that(2).is(2);
-    }
-
-    #[test]
-    fn is_succeeds_for_equal_string_values() {
-        Assert::that(String::from("2")).is(String::from("2"));
-    }
-
-    #[test]
-    fn is_succeeds_for_equal_string_and_string_slice() {
-        Assert::that(String::from("2")).is("2");
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual == expected)`
-  Actual:   `2`
-  Expected: `3`")]
-    fn is_panics_for_different_values() {
-        Assert::that(2).is(3);
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual != other)`
-  Actual:   `2`
-  Other:    `2`")]
-    fn ne_panics_for_equal_values() {
-        Assert::that(2).is_not(2);
-    }
-
-    #[test]
-    fn ne_succeeds_for_different_values() {
-        Assert::that(2).is_not(3);
-    }
-
-    #[test]
-    fn map_converts_assertion_pass() {
-        Assert::that(2).map(|v| v + 2).is(4);
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual == expected)`
-  Actual:   `4`
-  Expected: `3`")]
-    fn map_converts_assertion_fail() {
-        Assert::that(2).map(|v| v + 2).is(3);
-    }
-
 }

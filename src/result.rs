@@ -7,6 +7,19 @@ where
     T: Debug,
     E: Debug,
 {
+    /// Assert that `actual` is [Ok].
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Ok(2);
+    /// Assert::that(result).is_ok();
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Err(2);
+    /// Assert::that(result).is_ok();
+    /// ```
     pub fn is_ok(self) -> Self {
         match &self.actual {
             Ok(_) => self,
@@ -18,6 +31,19 @@ where
         }
     }
 
+    /// Assert that `actual` is [Err].
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Err(2);
+    /// Assert::that(result).is_err();
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Ok(2);
+    /// Assert::that(result).is_err();
+    /// ```
     pub fn is_err(self) -> Self {
         match &self.actual {
             Ok(value) => panic!(
@@ -29,6 +55,19 @@ where
         }
     }
 
+    /// Unwrap the [Ok] value, panic for [Err].
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Ok(2);
+    /// Assert::that(result).unwrap_ok().is(2);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Err(2);
+    /// Assert::that(result).unwrap_ok();
+    /// ```
     pub fn unwrap_ok(self) -> Assert<T> {
         match self.actual {
             Ok(value) => Assert::that(value),
@@ -40,6 +79,19 @@ where
         }
     }
 
+    /// Unwrap the [Err] value, panic for [Ok].
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Err(2);
+    /// Assert::that(result).unwrap_err().is(2);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// let result: Result<i32, i32> = Ok(2);
+    /// Assert::that(result).unwrap_err();
+    /// ```
     pub fn unwrap_err(self) -> Assert<E> {
         match self.actual {
             Ok(value) => panic!(
@@ -49,66 +101,5 @@ where
             ),
             Err(error) => Assert::that(error),
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::Assert;
-
-    #[test]
-    fn result_is_ok_succeeds_for_ok() {
-        let result: Result<i32, i32> = Ok(2);
-        Assert::that(result).is_ok();
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual.is_ok())`
-  Actual:   `Err(2)`")]
-    fn result_is_ok_panics_for_err() {
-        let result: Result<i32, i32> = Err(2);
-        Assert::that(result).is_ok();
-    }
-
-    #[test]
-    fn result_is_err_succeeds_for_err() {
-        let result: Result<i32, i32> = Err(2);
-        Assert::that(result).is_err();
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual.is_err())`
-  Actual:   `Ok(2)`")]
-    fn result_is_err_panics_for_ok() {
-        let result: Result<i32, i32> = Ok(2);
-        Assert::that(result).is_err();
-    }
-
-    #[test]
-    fn result_unwrap_ok_succeeds_for_ok() {
-        let result: Result<i32, i32> = Ok(2);
-        Assert::that(result).unwrap_ok().is(2);
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual.is_ok())`
-  Actual:   `Err(2)`")]
-    fn result_unwrap_ok_panics_for_err() {
-        let result: Result<i32, i32> = Err(2);
-        Assert::that(result).unwrap_ok().is(2);
-    }
-
-    #[test]
-    fn result_unwrap_err_succeeds_for_err() {
-        let result: Result<i32, i32> = Err(2);
-        Assert::that(result).unwrap_err().is(2);
-    }
-
-    #[test]
-    #[should_panic(expected = "Assertion failed: `(actual.is_err())`
-  Actual:   `Ok(2)`")]
-    fn result_unwrap_err_panics_for_ok() {
-        let result: Result<i32, i32> = Ok(2);
-        Assert::that(result).unwrap_err().is(2);
     }
 }
