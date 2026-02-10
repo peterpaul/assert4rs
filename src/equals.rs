@@ -180,4 +180,25 @@ where
         );
         self
     }
+
+    /// Assert that the actual value satisfies the given predicate.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// Assert::that(4).satisfies(|v| v % 2 == 0);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// Assert::that(3).satisfies(|v| v % 2 == 0);
+    /// ```
+    pub fn satisfies(self, predicate: impl FnOnce(&T) -> bool) -> Self {
+        assert!(
+            predicate(&self.actual),
+            "Assertion failed: `(satisfies predicate)`
+  Actual: `{:?}`",
+            self.actual,
+        );
+        self
+    }
 }

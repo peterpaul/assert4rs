@@ -39,4 +39,48 @@ where
             Assert::that(None)
         }
     }
+
+    /// Assert that the actual vector is empty.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// Assert::that(Vec::<i32>::new()).is_empty();
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// Assert::that(vec![1, 2, 3]).is_empty();
+    /// ```
+    pub fn is_empty(self) -> Self {
+        assert!(
+            self.actual.is_empty(),
+            "Assertion failed: `(actual.is_empty())`
+  Actual: `{:?}`",
+            self.actual,
+        );
+        self
+    }
+
+    /// Assert that the actual vector has the given length.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// Assert::that(vec![1, 2, 3]).has_length(3);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// Assert::that(vec![1, 2, 3]).has_length(2);
+    /// ```
+    pub fn has_length(self, expected: usize) -> Self {
+        assert!(
+            self.actual.len() == expected,
+            "Assertion failed: `(actual.len() == expected)`
+  Actual:   `{}`
+  Expected: `{}`",
+            self.actual.len(),
+            expected,
+        );
+        self
+    }
 }
