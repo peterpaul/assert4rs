@@ -2,23 +2,31 @@ pub mod equals;
 pub mod option;
 pub mod vec;
 
-pub use equals::*;
-pub use option::*;
-pub use vec::*;
-
-pub struct Assert<T> {
-    actual: T,
-}
-
 /// Entry point for the [Assert] DSL.
 ///
 /// [Assert] provides a fluent API for assertions. An [Assert] holds
 /// the `actual` value that can be used in assertion statements.
 ///
 /// ```
-/// # use assert4rs::{Assert, AssertEquals};
+/// # use assert4rs::Assert;
 /// Assert::that(3).is(3);
 /// ```
+///
+/// It takes ownership of self and returns ownership back so that
+/// assertions can be chained in fluent manner.
+///
+/// Like in the following example:
+///
+/// ```
+/// # use assert4rs::Assert;
+/// Assert::that("foo")
+///     .is("foo")
+///     .is_not("bar");
+/// ```
+pub struct Assert<T> {
+    actual: T,
+}
+
 impl<T> Assert<T> {
     /// Create an [Assert] instance for the `actual` value.
     ///
@@ -33,7 +41,7 @@ impl<T> Assert<T> {
     /// apply further assertions.
     ///
     /// ```
-    /// # use assert4rs::{Assert, AssertEquals};
+    /// # use assert4rs::Assert;
     /// Assert::that("3")
     ///     .map(|v| v.parse::<i32>().unwrap())
     ///     .is(3);

@@ -1,42 +1,16 @@
 use crate::Assert;
 use std::fmt::Debug;
 
-/// Used to assert equality or inequality of some value with `self`.
-///
-/// It takes ownership of self and returns ownership back so that
-/// assertions can be chained in fluent manner.
-///
-/// Like in the following example:
-///
-/// ```
-/// # use assert4rs::{Assert, AssertEquals};
-/// Assert::that("foo")
-///     .is("foo")
-///     .is_not("bar");
-/// ```
-///
-/// When implementing this trait, panic when the assertion fails.
-///
-/// For example the following code should panic:
-///
-/// ```should_panic
-/// # use assert4rs::{Assert, AssertEquals};
-/// Assert::that("foo").is("bar");
-/// ```
-pub trait AssertEquals<R> {
-    /// Assert that `self` is equal to the `expected` value.
-    fn is(self, expected: R) -> Self;
-    /// Assert that `self` is not equal to the `other` value.
-    fn is_not(self, other: R) -> Self;
-}
-
-/// Default implementation of [AssertEquals].
-impl<T, R> AssertEquals<R> for Assert<T>
+impl<T> Assert<T>
 where
-    T: PartialEq<R> + Debug,
-    R: Debug,
+    T: Debug,
 {
-    fn is(self, expected: R) -> Self {
+    /// Assert that `self` is equal to the `expected` value.
+    pub fn is<R>(self, expected: R) -> Self
+    where
+        T: PartialEq<R>,
+        R: Debug,
+    {
         assert!(
             self.actual == expected,
             "Assertion failed: `(actual == expected)`
@@ -48,7 +22,12 @@ where
         self
     }
 
-    fn is_not(self, other: R) -> Self {
+    /// Assert that `self` is not equal to the `other` value.
+    pub fn is_not<R>(self, other: R) -> Self
+    where
+        T: PartialEq<R>,
+        R: Debug,
+    {
         assert!(
             self.actual != other,
             "Assertion failed: `(actual != other)`
@@ -58,5 +37,144 @@ where
             other,
         );
         self
+    }
+
+    pub fn is_gt<R>(self, other: R) -> Self
+    where
+        T: PartialOrd<R>,
+        R: Debug,
+    {
+        assert!(
+            self.actual > other,
+            "Assertion failed: `(actual > other)`
+  Actual:   `{:?}`
+  Other:    `{:?}`",
+            self.actual,
+            other,
+        );
+        self
+    }
+
+    pub fn is_ge<R>(self, other: R) -> Self
+    where
+        T: PartialOrd<R>,
+        R: Debug,
+    {
+        assert!(
+            self.actual >= other,
+            "Assertion failed: `(actual >= other)`
+  Actual:   `{:?}`
+  Other:    `{:?}`",
+            self.actual,
+            other,
+        );
+        self
+    }
+
+    pub fn is_lt<R>(self, other: R) -> Self
+    where
+        T: PartialOrd<R>,
+        R: Debug,
+    {
+        assert!(
+            self.actual < other,
+            "Assertion failed: `(actual < other)`
+  Actual:   `{:?}`
+  Other:    `{:?}`",
+            self.actual,
+            other,
+        );
+        self
+    }
+
+    pub fn is_le<R>(self, other: R) -> Self
+    where
+        T: PartialOrd<R>,
+        R: Debug,
+    {
+        assert!(
+            self.actual <= other,
+            "Assertion failed: `(actual <= other)`
+  Actual:   `{:?}`
+  Other:    `{:?}`",
+            self.actual,
+            other,
+        );
+        self
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::Assert;
+
+    #[test]
+    fn ord_ge_success() {
+        Assert::that(3).is_ge(3);
+        Assert::that(3).is_ge(2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual >= other)`
+  Actual:   `3`
+  Other:    `4`")]
+    fn ord_ge_fail() {
+        Assert::that(3).is_ge(4);
+    }
+
+    #[test]
+    fn ord_le_success() {
+        Assert::that(3).is_le(3);
+        Assert::that(3).is_le(4);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual <= other)`
+  Actual:   `3`
+  Other:    `2`")]
+    fn ord_le_fail() {
+        Assert::that(3).is_le(2);
+    }
+
+    #[test]
+    fn ord_gt_success() {
+        Assert::that(3).is_gt(2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual > other)`
+  Actual:   `3`
+  Other:    `3`")]
+    fn ord_gt_fail_eq() {
+        Assert::that(3).is_gt(3);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual > other)`
+  Actual:   `3`
+  Other:    `4`")]
+    fn ord_gt_fail_larger() {
+        Assert::that(3).is_gt(4);
+    }
+
+    #[test]
+    fn ord_lt_success() {
+        Assert::that(3).is_lt(4);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual < other)`
+  Actual:   `3`
+  Other:    `2`")]
+    fn ord_lt_fail_smaller() {
+        Assert::that(3).is_lt(2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(actual < other)`
+  Actual:   `3`
+  Other:    `3`")]
+    fn ord_lt_fail_eq() {
+        Assert::that(3).is_lt(3);
     }
 }
