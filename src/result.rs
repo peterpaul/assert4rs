@@ -60,15 +60,15 @@ where
     /// ```
     /// # use assert4rs::Assert;
     /// let result: Result<i32, i32> = Ok(2);
-    /// Assert::that(result).unwrap_ok().is(2);
+    /// Assert::that(result).unwrap().is(2);
     /// ```
     ///
     /// ```should_panic
     /// # use assert4rs::Assert;
     /// let result: Result<i32, i32> = Err(2);
-    /// Assert::that(result).unwrap_ok();
+    /// Assert::that(result).unwrap();
     /// ```
-    pub fn unwrap_ok(self) -> Assert<T> {
+    pub fn unwrap(self) -> Assert<T> {
         match self.actual {
             Ok(value) => Assert::that(value),
             Err(error) => panic!(
