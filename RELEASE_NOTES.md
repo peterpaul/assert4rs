@@ -1,5 +1,12 @@
 # Release Notes
 
+## 0.2.1
+
+Administrative release with documentation such as
+
+- README.md
+- RELEASE_NOTES.md
+
 ## 0.2.0
 
 ### New assertions
