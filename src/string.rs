@@ -79,6 +79,8 @@ mod tests {
     #[test]
     #[should_panic(expected = "Assertion failed for `x`: `(actual.contains(pattern))`")]
     fn contains_reports_label_when_named() {
-        Assert::that(String::from("hello")).named("x").contains("xyz");
+        Assert::that(String::from("hello"))
+            .named("x")
+            .contains("xyz");
     }
 }
