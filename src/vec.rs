@@ -13,14 +13,15 @@ where
     /// # use assert4rs::{Assert};
     /// Assert::that(vec![1, 2, 3]).contains(&2);
     /// ```
+    #[track_caller]
     pub fn contains(self, expected: &T) -> Self {
         assert!(
             self.actual.contains(expected),
-            "Assertion failed: `(actual.contains(expected))`
-  Actual:   `{:?}`
-  Expected: `{:?}`",
+            "{}\n  Actual:   `{:?}`\n  Expected to contain: `{:?}`\n  Missing: `{:?}`",
+            self.header("actual.contains(expected)"),
             self.actual,
-            expected
+            expected,
+            expected,
         );
         self
     }
@@ -51,11 +52,12 @@ where
     /// # use assert4rs::Assert;
     /// Assert::that(vec![1, 2, 3]).is_empty();
     /// ```
+    #[track_caller]
     pub fn is_empty(self) -> Self {
         assert!(
             self.actual.is_empty(),
-            "Assertion failed: `(actual.is_empty())`
-  Actual: `{:?}`",
+            "{}\n  Actual: `{:?}`",
+            self.header("actual.is_empty()"),
             self.actual,
         );
         self
@@ -72,15 +74,26 @@ where
     /// # use assert4rs::Assert;
     /// Assert::that(vec![1, 2, 3]).has_length(2);
     /// ```
+    #[track_caller]
     pub fn has_length(self, expected: usize) -> Self {
         assert!(
             self.actual.len() == expected,
-            "Assertion failed: `(actual.len() == expected)`
-  Actual:   `{}`
-  Expected: `{}`",
+            "{}\n  Actual:   `{}`\n  Expected: `{}`",
+            self.header("actual.len() == expected"),
             self.actual.len(),
             expected,
         );
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Assert;
+
+    #[test]
+    #[should_panic(expected = "Assertion failed for `x`: `(actual.contains(expected))`")]
+    fn contains_reports_label_when_named() {
+        Assert::that(vec![1, 2, 3]).named("x").contains(&9);
     }
 }
