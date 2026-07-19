@@ -7,7 +7,6 @@
 /// The byte index and the two characters at that index where `a` and
 /// `b` first diverge. `None` on either side means that side's string
 /// ended first (a strict-prefix case).
-#[allow(dead_code)]
 pub(crate) struct Difference {
     pub(crate) index: usize,
     pub(crate) actual: Option<char>,
@@ -16,7 +15,6 @@ pub(crate) struct Difference {
 
 /// Finds the first point where `a` and `b` differ. Returns `None` if
 /// `a` and `b` are identical.
-#[allow(dead_code)]
 pub(crate) fn first_difference(a: &str, b: &str) -> Option<Difference> {
     let mut a_iter = a.char_indices();
     let mut b_iter = b.chars();
@@ -54,7 +52,6 @@ pub(crate) fn first_difference(a: &str, b: &str) -> Option<Difference> {
 /// Renders a human-readable description of a [`Difference`], e.g.
 /// `"differs at byte 8 ('p' vs 'o')"` or, for a length mismatch,
 /// `"actual has extra content at byte 12, starting with 'x'"`.
-#[allow(dead_code)]
 pub(crate) fn describe(diff: &Difference) -> String {
     match (diff.actual, diff.expected) {
         (Some(a), Some(b)) => {

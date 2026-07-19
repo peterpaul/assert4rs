@@ -114,7 +114,6 @@ impl<T> Assert<T> {
         self
     }
 
-    #[allow(dead_code)]
     pub(crate) fn header(&self, assertion: &str) -> String {
         match &self.label {
             Some(label) => format!("Assertion failed for `{label}`: `({assertion})`"),
