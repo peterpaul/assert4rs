@@ -39,6 +39,7 @@ pub mod hashset;
 pub mod option;
 pub mod result;
 pub mod string;
+mod structural_diff;
 pub mod vec;
 
 /// Entry point for the [Assert] DSL.
