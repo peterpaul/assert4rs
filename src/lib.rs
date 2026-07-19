@@ -32,6 +32,7 @@
 //!     .is(3);
 //! ```
 
+mod diff;
 pub mod equals;
 pub mod option;
 pub mod result;
