@@ -34,6 +34,7 @@
 
 mod diff;
 pub mod equals;
+pub mod hashmap;
 pub mod hashset;
 pub mod option;
 pub mod result;
