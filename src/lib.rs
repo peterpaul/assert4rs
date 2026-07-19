@@ -38,6 +38,7 @@ pub mod hashmap;
 pub mod hashset;
 pub mod option;
 pub mod result;
+pub mod sequence;
 pub mod string;
 mod structural_diff;
 pub mod vec;
