@@ -1,0 +1,39 @@
+# Configuration for `cargo release` (https://github.com/crate-ci/cargo-release).
+#
+# Usage:
+#   cargo release <level>   # e.g. `cargo release patch` — dry run by default
+#   cargo release <level> --execute
+#
+# This does NOT publish to crates.io (publish = false below) — it bumps
+# the version, updates CHANGELOG.md, commits, and tags/pushes. Run
+# `cargo publish` yourself once you're ready.
+#
+# This tool does a single release commit — it does not bump to a "next
+# dev version" afterward. Do that by hand afterward (bump Cargo.toml's
+# version to the next patch and commit), matching this project's
+# existing convention.
+
+publish = false
+push = true
+
+# Matches this repo's existing tag convention (e.g. "0.2.1", not "v0.2.1").
+tag-name = "{{version}}"
+tag-message = "Release {{version}}"
+pre-release-commit-message = "Release {{version}}"
+
+# Move the [Unreleased] section's contents under a new version heading,
+# and leave a fresh, empty [Unreleased] section above it.
+[[pre-release-replacements]]
+file = "CHANGELOG.md"
+search = "## \\[Unreleased\\]"
+replace = "## [Unreleased]\n\n## [{{version}}] - {{date}}"
+exactly = 1
+
+# Keep the link-reference section at the bottom of CHANGELOG.md in sync.
+[[pre-release-replacements]]
+file = "CHANGELOG.md"
+search = "\\[Unreleased\\]: https://github.com/peterpaul/assert4rs/compare/.*\\.\\.\\.HEAD"
+replace = """
+[Unreleased]: https://github.com/peterpaul/assert4rs/compare/{{version}}...HEAD
+[{{version}}]: https://github.com/peterpaul/assert4rs/compare/{{prev_version}}...{{version}}"""
+exactly = 1
