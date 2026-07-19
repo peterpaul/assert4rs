@@ -261,4 +261,95 @@ mod tests {
     fn is_not_has_plain_header() {
         Assert::that(1).is_not(1);
     }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual != other)`\n  Actual:   `1`\n  Other:    `1`"
+    )]
+    fn is_not_reports_full_message() {
+        Assert::that(1).is_not(1);
+    }
+
+    #[test]
+    fn is_not_has_no_diff_pointer() {
+        let result = std::panic::catch_unwind(|| {
+            Assert::that(1).is_not(1);
+        });
+        let message = result.unwrap_err();
+        let message = message.downcast_ref::<String>().unwrap();
+        assert!(
+            !message.contains("differs at byte"),
+            "unexpected diff pointer in: {message}"
+        );
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual > other)`\n  Actual:   `3`\n  Other:    `4`"
+    )]
+    fn is_gt_reports_full_message() {
+        Assert::that(3).is_gt(4);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual >= other)`\n  Actual:   `3`\n  Other:    `4`"
+    )]
+    fn is_ge_reports_full_message() {
+        Assert::that(3).is_ge(4);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual < other)`\n  Actual:   `3`\n  Other:    `2`"
+    )]
+    fn is_lt_reports_full_message() {
+        Assert::that(3).is_lt(2);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual <= other)`\n  Actual:   `3`\n  Other:    `2`"
+    )]
+    fn is_le_reports_full_message() {
+        Assert::that(3).is_le(2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed: `(satisfies predicate)`\n  Actual: `3`")]
+    fn satisfies_reports_full_message() {
+        Assert::that(3).satisfies(|v| v % 2 == 0);
+    }
+
+    #[test]
+    fn is_diff_pointer_aligns_under_first_difference() {
+        let result = std::panic::catch_unwind(|| {
+            Assert::that(1).is(2);
+        });
+        let message = result.unwrap_err();
+        let message = message.downcast_ref::<String>().unwrap();
+        let expected_pointer_line = format!("{}^ differs at byte 0 ('1' vs '2')", " ".repeat(13));
+        assert!(
+            message.contains(&expected_pointer_line),
+            "expected pointer line not found in: {message}"
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "expected has extra content at byte 1, starting with '0'")]
+    fn is_reports_diff_for_expected_longer() {
+        Assert::that(1).is(10);
+    }
+
+    #[test]
+    #[should_panic(expected = "actual has extra content at byte 1, starting with '0'")]
+    fn is_reports_diff_for_actual_longer() {
+        Assert::that(10).is(1);
+    }
+
+    #[test]
+    #[should_panic(expected = "differs at byte 2 ('é' vs 'o')")]
+    fn is_reports_diff_pointer_for_multibyte_strings() {
+        Assert::that(String::from("aée")).is("aoe");
+    }
 }

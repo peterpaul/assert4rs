@@ -119,4 +119,18 @@ mod tests {
         let result: Result<i32, i32> = Ok(2);
         Assert::that(result).named("x").unwrap_err();
     }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed for `x`: `(actual.is_err())`\n  Actual:   `Ok(2)`")]
+    fn is_err_reports_full_message() {
+        let result: Result<i32, i32> = Ok(2);
+        Assert::that(result).named("x").is_err();
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed for `x`: `(actual.is_ok())`\n  Actual:   `Err(2)`")]
+    fn unwrap_reports_full_message() {
+        let result: Result<i32, i32> = Err(2);
+        Assert::that(result).named("x").unwrap();
+    }
 }

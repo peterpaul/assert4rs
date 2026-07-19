@@ -67,4 +67,20 @@ mod tests {
     fn unwrap_reports_label_when_named() {
         Assert::that(None::<i32>).named("x").unwrap();
     }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed for `x`: `(actual == expected)`\n  Actual:   `None`\n  Expected: `Some(2)`"
+    )]
+    fn is_some_reports_label_and_diff_via_delegation() {
+        Assert::that(None::<i32>).named("x").is_some(2);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed for `y`: `(actual == expected)`\n  Actual:   `Some(2)`\n  Expected: `None`"
+    )]
+    fn is_none_reports_label_and_diff_via_delegation() {
+        Assert::that(Some(2)).named("y").is_none();
+    }
 }

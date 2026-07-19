@@ -83,4 +83,24 @@ mod tests {
             .named("x")
             .contains("xyz");
     }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed for `x`: `(actual.starts_with(prefix))`\n  Actual: `\"hello world\"`\n  Prefix: `\"world\"`"
+    )]
+    fn starts_with_reports_full_message() {
+        Assert::that(String::from("hello world"))
+            .named("x")
+            .starts_with("world");
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed for `x`: `(actual.ends_with(suffix))`\n  Actual: `\"hello world\"`\n  Suffix: `\"hello\"`"
+    )]
+    fn ends_with_reports_full_message() {
+        Assert::that(String::from("hello world"))
+            .named("x")
+            .ends_with("hello");
+    }
 }

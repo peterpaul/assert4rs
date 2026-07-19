@@ -96,4 +96,28 @@ mod tests {
     fn contains_reports_label_when_named() {
         Assert::that(vec![1, 2, 3]).named("x").contains(&9);
     }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual.contains(expected))`\n  Actual:   `[1, 2, 3]`\n  Expected to contain: `9`\n  Missing: `9`"
+    )]
+    fn contains_reports_full_message() {
+        Assert::that(vec![1, 2, 3]).contains(&9);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed for `x`: `(actual.is_empty())`\n  Actual: `[1, 2, 3]`"
+    )]
+    fn is_empty_reports_full_message() {
+        Assert::that(vec![1, 2, 3]).named("x").is_empty();
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed for `x`: `(actual.len() == expected)`\n  Actual:   `3`\n  Expected: `5`"
+    )]
+    fn has_length_reports_full_message() {
+        Assert::that(vec![1, 2, 3]).named("x").has_length(5);
+    }
 }
