@@ -10,7 +10,6 @@ use std::hash::Hash;
 /// and elements in `expected` but not `actual`, matched by value
 /// (ignoring position). Deterministic without any bound beyond
 /// `PartialEq` — walks `actual`/`expected` in their own existing order.
-#[allow(dead_code)]
 pub(crate) fn sequence_diff<'a, U: PartialEq>(
     actual: &'a [U],
     expected: &'a [U],
@@ -30,7 +29,6 @@ pub(crate) fn sequence_diff<'a, U: PartialEq>(
 /// Returns `(extra, missing)`: the symmetric difference between `actual`
 /// and `expected`, each side sorted for deterministic output (`HashSet`
 /// iteration order is not itself deterministic).
-#[allow(dead_code)]
 pub(crate) fn set_diff<'a, T: Eq + Hash + Ord>(
     actual: &'a HashSet<T>,
     expected: &'a HashSet<T>,
@@ -46,7 +44,7 @@ pub(crate) fn set_diff<'a, T: Eq + Hash + Ord>(
 /// that `actual` doesn't, keys `actual` has that `expected` doesn't, and
 /// keys present in both with different values (as `(key, actual_value,
 /// expected_value)`). All three sorted by key for deterministic output.
-#[allow(dead_code, clippy::type_complexity)]
+#[allow(clippy::type_complexity)]
 pub(crate) fn map_diff<'a, K: Eq + Hash + Ord, V: PartialEq>(
     actual: &'a HashMap<K, V>,
     expected: &'a HashMap<K, V>,
