@@ -13,12 +13,12 @@ impl Assert<String> {
     /// # use assert4rs::Assert;
     /// Assert::that(String::from("hello world")).starts_with("world");
     /// ```
+    #[track_caller]
     pub fn starts_with(self, prefix: &str) -> Self {
         assert!(
             self.actual.starts_with(prefix),
-            "Assertion failed: `(actual.starts_with(prefix))`
-  Actual: `{:?}`
-  Prefix: `{:?}`",
+            "{}\n  Actual: `{:?}`\n  Prefix: `{:?}`",
+            self.header("actual.starts_with(prefix)"),
             self.actual,
             prefix,
         );
@@ -36,12 +36,12 @@ impl Assert<String> {
     /// # use assert4rs::Assert;
     /// Assert::that(String::from("hello world")).ends_with("hello");
     /// ```
+    #[track_caller]
     pub fn ends_with(self, suffix: &str) -> Self {
         assert!(
             self.actual.ends_with(suffix),
-            "Assertion failed: `(actual.ends_with(suffix))`
-  Actual: `{:?}`
-  Suffix: `{:?}`",
+            "{}\n  Actual: `{:?}`\n  Suffix: `{:?}`",
+            self.header("actual.ends_with(suffix)"),
             self.actual,
             suffix,
         );
@@ -59,15 +59,26 @@ impl Assert<String> {
     /// # use assert4rs::Assert;
     /// Assert::that(String::from("hello world")).contains("xyz");
     /// ```
+    #[track_caller]
     pub fn contains(self, pattern: &str) -> Self {
         assert!(
             self.actual.contains(pattern),
-            "Assertion failed: `(actual.contains(pattern))`
-  Actual:  `{:?}`
-  Pattern: `{:?}`",
+            "{}\n  Actual:  `{:?}`\n  Pattern: `{:?}`",
+            self.header("actual.contains(pattern)"),
             self.actual,
             pattern,
         );
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Assert;
+
+    #[test]
+    #[should_panic(expected = "Assertion failed for `x`: `(actual.contains(pattern))`")]
+    fn contains_reports_label_when_named() {
+        Assert::that(String::from("hello")).named("x").contains("xyz");
     }
 }
