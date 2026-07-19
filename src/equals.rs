@@ -30,23 +30,27 @@ where
         T: PartialEq<R>,
         R: Debug,
     {
+        if self.actual == expected {
+            return self;
+        }
         let actual_debug = format!("{:?}", self.actual);
         let expected_debug = format!("{:?}", expected);
         let pointer = crate::diff::first_difference(&actual_debug, &expected_debug)
             .map(|d| {
                 format!(
                     "\n{}^ {}",
+                    // `d.index` is a byte offset into the `{:?}`-formatted string, so
+                    // the caret may visually misalign for debug output containing
+                    // multi-byte UTF-8 characters before the point of difference.
                     " ".repeat(VALUE_PREFIX_LEN + d.index),
                     crate::diff::describe(&d)
                 )
             })
             .unwrap_or_default();
-        assert!(
-            self.actual == expected,
+        panic!(
             "{}\n  Actual:   `{actual_debug}`\n  Expected: `{expected_debug}`{pointer}",
             self.header("actual == expected"),
         );
-        self
     }
 
     /// Assert that `self` is not equal to the `other` value.
