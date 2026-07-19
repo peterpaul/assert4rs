@@ -17,6 +17,7 @@ where
     /// # use assert4rs::Assert;
     /// Assert::that(None::<i32>).is_some(2);
     /// ```
+    #[track_caller]
     pub fn is_some(self, expected: T) -> Self {
         self.is(Some(expected))
     }
@@ -32,6 +33,7 @@ where
     /// # use assert4rs::Assert;
     /// Assert::that(Some(2)).is_none();
     /// ```
+    #[track_caller]
     pub fn is_none(self) -> Self {
         self.is(None)
     }
@@ -47,13 +49,22 @@ where
     /// # use assert4rs::Assert;
     /// Assert::that(None::<i32>).unwrap();
     /// ```
+    #[track_caller]
     pub fn unwrap(self) -> Assert<T> {
         match self.actual {
             Some(value) => Assert::that(value),
-            None => panic!(
-                "Assertion failed: `(actual.is_some())`
-  Actual:   `None`"
-            ),
+            None => panic!("{}\n  Actual:   `None`", self.header("actual.is_some()")),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Assert;
+
+    #[test]
+    #[should_panic(expected = "Assertion failed for `x`: `(actual.is_some())`")]
+    fn unwrap_reports_label_when_named() {
+        Assert::that(None::<i32>).named("x").unwrap();
     }
 }
