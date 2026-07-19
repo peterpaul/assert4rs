@@ -62,6 +62,7 @@ pub mod vec;
 /// ```
 pub struct Assert<T> {
     actual: T,
+    label: Option<String>,
 }
 
 impl<T> Assert<T> {
@@ -69,7 +70,10 @@ impl<T> Assert<T> {
     ///
     /// All assertions start with `Assert::that(actual)`.
     pub fn that(actual: T) -> Self {
-        Assert { actual }
+        Assert {
+            actual,
+            label: None,
+        }
     }
 
     /// Maps the `actual` value using lambda `f`.
@@ -90,5 +94,54 @@ impl<T> Assert<T> {
     /// ```
     pub fn map<R>(self, f: impl FnOnce(T) -> R) -> Assert<R> {
         Assert::that(f(self.actual))
+    }
+
+    /// Attach a label to this assertion, used in the panic message if
+    /// the assertion fails. Useful to identify which value failed when
+    /// asserting on several unrelated values in the same test.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// Assert::that(30).named("user.age").is(30);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// Assert::that(25).named("user.age").is(30);
+    /// ```
+    pub fn named(mut self, label: &str) -> Self {
+        self.label = Some(label.to_string());
+        self
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn header(&self, assertion: &str) -> String {
+        match &self.label {
+            Some(label) => format!("Assertion failed for `{label}`: `({assertion})`"),
+            None => format!("Assertion failed: `({assertion})`"),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn header_without_label() {
+        let a = Assert::that(1);
+        assert_eq!(a.header("a == b"), "Assertion failed: `(a == b)`");
+    }
+
+    #[test]
+    fn header_with_label() {
+        let a = Assert::that(1).named("x");
+        assert_eq!(a.header("a == b"), "Assertion failed for `x`: `(a == b)`");
+    }
+
+    #[test]
+    fn map_resets_label() {
+        let a = Assert::that(1).named("x").map(|v| v + 1);
+        assert_eq!(a.header("a == b"), "Assertion failed: `(a == b)`");
     }
 }
