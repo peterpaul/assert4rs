@@ -2,10 +2,7 @@ use crate::Assert;
 use std::fmt::Debug;
 
 /// DSL for [Vec].
-impl<T> Assert<Vec<T>>
-where
-    T: PartialEq + Debug,
-{
+impl<T> Assert<Vec<T>> {
     /// Assert that the actual vector contains a specific `expected`
     /// value.
     ///
@@ -14,7 +11,10 @@ where
     /// Assert::that(vec![1, 2, 3]).contains(&2);
     /// ```
     #[track_caller]
-    pub fn contains(self, expected: &T) -> Self {
+    pub fn contains(self, expected: &T) -> Self
+    where
+        T: PartialEq + Debug,
+    {
         assert!(
             self.actual.contains(expected),
             "{}\n  Actual:   `{:?}`\n  Expected to contain: `{:?}`\n  Missing: `{:?}`",
@@ -53,7 +53,10 @@ where
     /// Assert::that(vec![1, 2, 3]).is_empty();
     /// ```
     #[track_caller]
-    pub fn is_empty(self) -> Self {
+    pub fn is_empty(self) -> Self
+    where
+        T: Debug,
+    {
         assert!(
             self.actual.is_empty(),
             "{}\n  Actual: `{:?}`",

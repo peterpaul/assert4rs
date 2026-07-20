@@ -4,10 +4,7 @@ use std::fmt::Debug;
 use std::hash::Hash;
 
 /// DSL for [HashSet].
-impl<T> Assert<HashSet<T>>
-where
-    T: Eq + Hash + Debug,
-{
+impl<T> Assert<HashSet<T>> {
     /// Assert that the actual set contains a specific `expected` value.
     ///
     /// ```
@@ -22,7 +19,10 @@ where
     /// Assert::that(HashSet::from([1, 2, 3])).contains(&9);
     /// ```
     #[track_caller]
-    pub fn contains(self, expected: &T) -> Self {
+    pub fn contains(self, expected: &T) -> Self
+    where
+        T: Eq + Hash + Debug,
+    {
         assert!(
             self.actual.contains(expected),
             "{}\n  Actual:   `{:?}`\n  Expected to contain: `{:?}`\n  Missing: `{:?}`",
@@ -48,7 +48,10 @@ where
     /// Assert::that(HashSet::from([1])).is_empty();
     /// ```
     #[track_caller]
-    pub fn is_empty(self) -> Self {
+    pub fn is_empty(self) -> Self
+    where
+        T: Debug,
+    {
         assert!(
             self.actual.is_empty(),
             "{}\n  Actual: `{:?}`",

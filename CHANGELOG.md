@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Narrowed generic bounds (`Debug`, `PartialEq`, `Eq + Hash`) from impl-block level to per-method `where` clauses on `Assert<HashMap<K, V>>`, `Assert<HashSet<T>>`, `Assert<Option<T>>`, and `Assert<Result<T, E>>`, so each method only requires what it actually uses — e.g. `has_length` now works on element types that don't implement `Debug`.
+
 ## [0.3.0] - 2026-07-19
 
 ### Added

@@ -2,11 +2,7 @@ use std::fmt::Debug;
 
 use crate::Assert;
 
-impl<T, E> Assert<Result<T, E>>
-where
-    T: Debug,
-    E: Debug,
-{
+impl<T, E> Assert<Result<T, E>> {
     /// Assert that `actual` is [Ok].
     ///
     /// ```
@@ -21,7 +17,10 @@ where
     /// Assert::that(result).is_ok();
     /// ```
     #[track_caller]
-    pub fn is_ok(self) -> Self {
+    pub fn is_ok(self) -> Self
+    where
+        E: Debug,
+    {
         match &self.actual {
             Ok(_) => self,
             Err(error) => panic!(
@@ -46,7 +45,10 @@ where
     /// Assert::that(result).is_err();
     /// ```
     #[track_caller]
-    pub fn is_err(self) -> Self {
+    pub fn is_err(self) -> Self
+    where
+        T: Debug,
+    {
         match &self.actual {
             Ok(value) => panic!(
                 "{}\n  Actual:   `Ok({:?})`",
@@ -71,7 +73,10 @@ where
     /// Assert::that(result).unwrap();
     /// ```
     #[track_caller]
-    pub fn unwrap(self) -> Assert<T> {
+    pub fn unwrap(self) -> Assert<T>
+    where
+        E: Debug,
+    {
         let header = self.header("actual.is_ok()");
         match self.actual {
             Ok(value) => Assert::that(value),
@@ -93,7 +98,10 @@ where
     /// Assert::that(result).unwrap_err();
     /// ```
     #[track_caller]
-    pub fn unwrap_err(self) -> Assert<E> {
+    pub fn unwrap_err(self) -> Assert<E>
+    where
+        T: Debug,
+    {
         let header = self.header("actual.is_err()");
         match self.actual {
             Ok(value) => panic!("{header}\n  Actual:   `Ok({value:?})`"),

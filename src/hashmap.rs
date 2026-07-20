@@ -4,11 +4,7 @@ use std::fmt::Debug;
 use std::hash::Hash;
 
 /// DSL for [HashMap].
-impl<K, V> Assert<HashMap<K, V>>
-where
-    K: Eq + Hash + Debug,
-    V: Debug,
-{
+impl<K, V> Assert<HashMap<K, V>> {
     /// Assert that the actual map contains the given key.
     ///
     /// ```
@@ -23,7 +19,11 @@ where
     /// Assert::that(HashMap::from([("a", 1)])).contains_key(&"z");
     /// ```
     #[track_caller]
-    pub fn contains_key(self, key: &K) -> Self {
+    pub fn contains_key(self, key: &K) -> Self
+    where
+        K: Eq + Hash + Debug,
+        V: Debug,
+    {
         assert!(
             self.actual.contains_key(key),
             "{}\n  Actual:   `{:?}`\n  Expected to contain key: `{:?}`\n  Missing key: `{:?}`",
@@ -45,7 +45,10 @@ where
     /// Assert::that(HashMap::from([("a", 1)])).get(&"a").unwrap().is(1);
     /// Assert::that(HashMap::from([("a", 1)])).get(&"z").is_none();
     /// ```
-    pub fn get(mut self, key: &K) -> Assert<Option<V>> {
+    pub fn get(mut self, key: &K) -> Assert<Option<V>>
+    where
+        K: Eq + Hash,
+    {
         Assert::that(self.actual.remove(key))
     }
 
@@ -63,7 +66,11 @@ where
     /// Assert::that(HashMap::from([("a", 1)])).is_empty();
     /// ```
     #[track_caller]
-    pub fn is_empty(self) -> Self {
+    pub fn is_empty(self) -> Self
+    where
+        K: Debug,
+        V: Debug,
+    {
         assert!(
             self.actual.is_empty(),
             "{}\n  Actual: `{:?}`",

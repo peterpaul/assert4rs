@@ -2,10 +2,7 @@ use crate::Assert;
 
 use std::fmt::Debug;
 
-impl<T> Assert<Option<T>>
-where
-    T: PartialEq + Debug,
-{
+impl<T> Assert<Option<T>> {
     /// Assert that `actual` is equal to [Some] `expected` value.
     ///
     /// ```
@@ -18,7 +15,10 @@ where
     /// Assert::that(None::<i32>).is_some(2);
     /// ```
     #[track_caller]
-    pub fn is_some(self, expected: T) -> Self {
+    pub fn is_some(self, expected: T) -> Self
+    where
+        T: PartialEq + Debug,
+    {
         self.is(Some(expected))
     }
 
@@ -34,7 +34,10 @@ where
     /// Assert::that(Some(2)).is_none();
     /// ```
     #[track_caller]
-    pub fn is_none(self) -> Self {
+    pub fn is_none(self) -> Self
+    where
+        T: PartialEq + Debug,
+    {
         self.is(None)
     }
 
