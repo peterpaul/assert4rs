@@ -1,17 +1,26 @@
 # Configuration for `cargo release` (https://github.com/crate-ci/cargo-release).
 #
-# Usage:
-#   cargo release <level>   # e.g. `cargo release patch` — dry run by default
-#   cargo release <level> --execute
+# Release procedure:
 #
-# This does NOT publish to crates.io (publish = false below) — it bumps
-# the version, updates CHANGELOG.md, commits, and tags/pushes. Run
-# `cargo publish` yourself once you're ready.
+#   1. Make sure CHANGELOG.md's [Unreleased] section reflects everything
+#      since the last release, and Cargo.toml's `version` still matches
+#      that last release (see note below on why it must).
+#   2. cargo release <level>            # e.g. `patch`/`minor`/`major` — dry run
+#   3. Review the diff it prints, then: cargo release <level> --execute
+#      This bumps Cargo.toml's version, moves [Unreleased] under a new
+#      version heading in CHANGELOG.md, commits, tags, and pushes
+#      (publish = false below — it does NOT publish to crates.io; run
+#      `cargo publish` yourself once you're ready).
 #
-# This tool does a single release commit — it does not bump to a "next
-# dev version" afterward. Do that by hand afterward (bump Cargo.toml's
-# version to the next patch and commit), matching this project's
-# existing convention.
+# IMPORTANT: do not bump Cargo.toml to a "next dev version" after a
+# release. Leave it at the version you just released. `cargo release`
+# computes the changelog's compare-link `prev_version` from Cargo.toml's
+# *current* version before bumping it — if that's already been advanced
+# to the next dev version, the next release's `prev_version` equals its
+# own target version, producing a broken self-compare link (e.g.
+# `compare/0.3.1...0.3.1`). Leaving Cargo.toml at the last released
+# version is what lets cargo-release compute a correct prev_version on
+# the next run.
 
 publish = false
 push = true
