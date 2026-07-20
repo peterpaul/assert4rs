@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Assert<&Vec<T>>`, `Assert<&HashMap<K, V>>`, `Assert<&HashSet<T>>`, `Assert<&String>` — reference-receiver mirrors of the read-only assertions (`has_length`, `is_empty`, `contains`, `contains_key`, `starts_with`, `ends_with`) so callers don't need to `.clone()` a collection just to keep using it after asserting on it.
+
 ### Changed
 
 - Narrowed generic bounds (`Debug`, `PartialEq`, `Eq + Hash`) from impl-block level to per-method `where` clauses on `Assert<HashMap<K, V>>`, `Assert<HashSet<T>>`, `Assert<Option<T>>`, and `Assert<Result<T, E>>`, so each method only requires what it actually uses — e.g. `has_length` now works on element types that don't implement `Debug`.

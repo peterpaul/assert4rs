@@ -87,6 +87,98 @@ impl<T> Assert<HashSet<T>> {
     }
 }
 
+/// DSL for `&HashSet<T>`, mirroring [`Assert<HashSet<T>>`] for read-only
+/// assertions that don't need ownership of the set — avoids a `.clone()`
+/// at the call site when the set is used again afterward.
+impl<T> Assert<&HashSet<T>> {
+    /// Assert that the actual set contains a specific `expected` value.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashSet;
+    /// let s = HashSet::from([1, 2, 3]);
+    /// Assert::that(&s).contains(&2);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashSet;
+    /// let s = HashSet::from([1, 2, 3]);
+    /// Assert::that(&s).contains(&9);
+    /// ```
+    #[track_caller]
+    pub fn contains(self, expected: &T) -> Self
+    where
+        T: Eq + Hash + Debug,
+    {
+        assert!(
+            self.actual.contains(expected),
+            "{}\n  Actual:   `{:?}`\n  Expected to contain: `{:?}`\n  Missing: `{:?}`",
+            self.header("actual.contains(expected)"),
+            self.actual,
+            expected,
+            expected,
+        );
+        self
+    }
+
+    /// Assert that the actual set is empty.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashSet;
+    /// let s = HashSet::<i32>::new();
+    /// Assert::that(&s).is_empty();
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashSet;
+    /// let s = HashSet::from([1]);
+    /// Assert::that(&s).is_empty();
+    /// ```
+    #[track_caller]
+    pub fn is_empty(self) -> Self
+    where
+        T: Debug,
+    {
+        assert!(
+            self.actual.is_empty(),
+            "{}\n  Actual: `{:?}`",
+            self.header("actual.is_empty()"),
+            self.actual,
+        );
+        self
+    }
+
+    /// Assert that the actual set has the given length.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashSet;
+    /// let s = HashSet::from([1, 2, 3]);
+    /// Assert::that(&s).has_length(3);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashSet;
+    /// let s = HashSet::from([1, 2, 3]);
+    /// Assert::that(&s).has_length(2);
+    /// ```
+    #[track_caller]
+    pub fn has_length(self, expected: usize) -> Self {
+        assert!(
+            self.actual.len() == expected,
+            "{}\n  Actual:   `{}`\n  Expected: `{}`",
+            self.header("actual.len() == expected"),
+            self.actual.len(),
+            expected,
+        );
+        self
+    }
+}
+
 /// Structural-diff equality check. Requires `T: Ord` (beyond what
 /// `contains`/`is_empty`/`has_length` need) so the diff's Extra/Missing
 /// lists can be sorted for deterministic output.
@@ -198,5 +290,42 @@ mod tests {
         let message = message.downcast_ref::<String>().unwrap();
         assert!(message.contains("Extra:    `[3]`"), "message: {message}");
         assert!(message.contains("Missing:  `[4]`"), "message: {message}");
+    }
+
+    #[test]
+    fn ref_contains_leaves_set_usable_afterward() {
+        let s = HashSet::from([1, 2, 3]);
+        Assert::that(&s).contains(&2);
+        assert_eq!(s.len(), 3);
+    }
+
+    #[test]
+    fn ref_is_empty_leaves_set_usable_afterward() {
+        let s = HashSet::<i32>::new();
+        Assert::that(&s).is_empty();
+        assert!(s.is_empty());
+    }
+
+    #[test]
+    fn ref_has_length_leaves_set_usable_afterward() {
+        let s = HashSet::from([1, 2, 3]);
+        Assert::that(&s).has_length(3);
+        assert_eq!(s.len(), 3);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed for `x`: `(actual.contains(expected))`")]
+    fn ref_contains_reports_label_when_named() {
+        let s = HashSet::from([1]);
+        Assert::that(&s).named("x").contains(&9);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual.len() == expected)`\n  Actual:   `1`\n  Expected: `5`"
+    )]
+    fn ref_has_length_reports_full_message() {
+        let s = HashSet::from([1]);
+        Assert::that(&s).has_length(5);
     }
 }

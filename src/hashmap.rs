@@ -106,6 +106,102 @@ impl<K, V> Assert<HashMap<K, V>> {
     }
 }
 
+/// DSL for `&HashMap<K, V>`, mirroring [`Assert<HashMap<K, V>>`] for
+/// read-only assertions that don't need ownership of the map — avoids a
+/// `.clone()` at the call site when the map is used again afterward.
+/// `get` isn't mirrored here since it removes the matched entry, which
+/// needs an owned map.
+impl<K, V> Assert<&HashMap<K, V>> {
+    /// Assert that the actual map contains the given key.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashMap;
+    /// let m = HashMap::from([("a", 1)]);
+    /// Assert::that(&m).contains_key(&"a");
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashMap;
+    /// let m = HashMap::from([("a", 1)]);
+    /// Assert::that(&m).contains_key(&"z");
+    /// ```
+    #[track_caller]
+    pub fn contains_key(self, key: &K) -> Self
+    where
+        K: Eq + Hash + Debug,
+        V: Debug,
+    {
+        assert!(
+            self.actual.contains_key(key),
+            "{}\n  Actual:   `{:?}`\n  Expected to contain key: `{:?}`\n  Missing key: `{:?}`",
+            self.header("actual.contains_key(key)"),
+            self.actual,
+            key,
+            key,
+        );
+        self
+    }
+
+    /// Assert that the actual map is empty.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashMap;
+    /// let m = HashMap::<&str, i32>::new();
+    /// Assert::that(&m).is_empty();
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashMap;
+    /// let m = HashMap::from([("a", 1)]);
+    /// Assert::that(&m).is_empty();
+    /// ```
+    #[track_caller]
+    pub fn is_empty(self) -> Self
+    where
+        K: Debug,
+        V: Debug,
+    {
+        assert!(
+            self.actual.is_empty(),
+            "{}\n  Actual: `{:?}`",
+            self.header("actual.is_empty()"),
+            self.actual,
+        );
+        self
+    }
+
+    /// Assert that the actual map has the given length.
+    ///
+    /// ```
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashMap;
+    /// let m = HashMap::from([("a", 1)]);
+    /// Assert::that(&m).has_length(1);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use assert4rs::Assert;
+    /// # use std::collections::HashMap;
+    /// let m = HashMap::from([("a", 1)]);
+    /// Assert::that(&m).has_length(2);
+    /// ```
+    #[track_caller]
+    pub fn has_length(self, expected: usize) -> Self {
+        assert!(
+            self.actual.len() == expected,
+            "{}\n  Actual:   `{}`\n  Expected: `{}`",
+            self.header("actual.len() == expected"),
+            self.actual.len(),
+            expected,
+        );
+        self
+    }
+}
+
 /// Structural-diff equality check. Requires `K: Ord` and `V: PartialEq`
 /// (beyond what `contains_key`/`get`/`is_empty`/`has_length` need) so
 /// the diff's Missing/Extra/Changed lists can be sorted for
@@ -247,5 +343,42 @@ mod tests {
             message.contains("Changed: `{\"b\": 2 != 99}`"),
             "message: {message}"
         );
+    }
+
+    #[test]
+    fn ref_contains_key_leaves_map_usable_afterward() {
+        let m = HashMap::from([("a", 1)]);
+        Assert::that(&m).contains_key(&"a");
+        assert_eq!(m.len(), 1);
+    }
+
+    #[test]
+    fn ref_is_empty_leaves_map_usable_afterward() {
+        let m = HashMap::<&str, i32>::new();
+        Assert::that(&m).is_empty();
+        assert!(m.is_empty());
+    }
+
+    #[test]
+    fn ref_has_length_leaves_map_usable_afterward() {
+        let m = HashMap::from([("a", 1)]);
+        Assert::that(&m).has_length(1);
+        assert_eq!(m.len(), 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Assertion failed for `x`: `(actual.contains_key(key))`")]
+    fn ref_contains_key_reports_label_when_named() {
+        let m = HashMap::from([("a", 1)]);
+        Assert::that(&m).named("x").contains_key(&"z");
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Assertion failed: `(actual.len() == expected)`\n  Actual:   `1`\n  Expected: `5`"
+    )]
+    fn ref_has_length_reports_full_message() {
+        let m = HashMap::from([("a", 1)]);
+        Assert::that(&m).has_length(5);
     }
 }
